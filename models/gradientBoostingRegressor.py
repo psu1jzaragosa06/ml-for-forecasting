@@ -58,7 +58,9 @@ def forecast_and_evaluate_gradient_boosting(df_arg, exog, lag_value):
     # Recreate the forecaster with the best parameters
     forecaster = ForecasterAutoreg(
         regressor=GradientBoostingRegressor(**best_params, random_state=123),
-        lags=lag_value 
+        lags=lag_value,
+        transformer_y=StandardScaler(),
+        transformer_exog=StandardScaler(),
     )
 
     # Backtest the model

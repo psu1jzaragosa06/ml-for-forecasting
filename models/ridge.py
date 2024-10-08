@@ -58,7 +58,9 @@ def forecast_and_evaluate_ridge(df_arg, exog, lag_value):
     # Recreate the forecaster with the best parameters
     forecaster = ForecasterAutoreg(
         regressor=Ridge(**best_params),
-        lags=lag_value 
+        lags=lag_value,
+        transformer_y=StandardScaler(),
+        transformer_exog=StandardScaler(),
     )
 
     # Backtest the model

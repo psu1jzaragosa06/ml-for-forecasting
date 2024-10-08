@@ -57,7 +57,9 @@ def forecast_and_evaluate_elastic_net(df_arg, exog, lag_value):
     # Recreate the forecaster with the best parameters
     forecaster = ForecasterAutoreg(
         regressor=ElasticNet(**best_params, random_state=123),
-        lags=lag_value
+        lags=lag_value,
+        transformer_y=StandardScaler(),
+        transformer_exog=StandardScaler(),
     )
 
     # Backtest the model
