@@ -3,7 +3,11 @@ from sklearn.linear_model import LinearRegression
 from skforecast.ForecasterAutoreg import ForecasterAutoreg
 from skforecast.model_selection import random_search_forecaster
 from skforecast.model_selection import backtesting_forecaster
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    mean_squared_error,
+)
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
@@ -25,14 +29,17 @@ def forecast_and_evaluate_linear_regression(df_arg, exog, lag_value):
 
     forecaster = ForecasterAutoreg(
         regressor=LinearRegression(),
-        lags=lag_value, 
+        lags=lag_value,
         transformer_y=StandardScaler(),
         transformer_exog=StandardScaler(),
     )
 
     # Define parameter grid to search for LinearRegression
     param_grid = {
-        'fit_intercept': [True, False],  # Whether to calculate the intercept for this model
+        "fit_intercept": [
+            True,
+            False,
+        ],  # Whether to calculate the intercept for this model
     }
 
     # Perform random search to find the best hyperparameters
@@ -40,17 +47,19 @@ def forecast_and_evaluate_linear_regression(df_arg, exog, lag_value):
         forecaster=forecaster,
         y=df.iloc[:, 0],  # The column of time series data
         param_distributions=param_grid,
-        steps=10,  
+        steps=10,
         exog=exog,
-        n_iter=10,  
-        metric='mean_squared_error', 
-        initial_train_size=int(len(df) * 0.8),  # Use 80% for training, rest for validation
-        fixed_train_size=False,  
+        n_iter=10,
+        metric="mean_squared_error",
+        initial_train_size=int(
+            len(df) * 0.8
+        ),  # Use 80% for training, rest for validation
+        fixed_train_size=False,
         return_best=True,  # Return the best parameter set
-        random_state=123
+        random_state=123,
     )
-    
-    best_params = results_random_search.iloc[0]['params']
+
+    best_params = results_random_search.iloc[0]["params"]
 
     # Recreate the forecaster with the best parameters
     forecaster = ForecasterAutoreg(
@@ -66,17 +75,18 @@ def forecast_and_evaluate_linear_regression(df_arg, exog, lag_value):
         y=df.iloc[:, 0],
         exog=exog,
         initial_train_size=int(len(df) * 0.8),  # 80% train size
-        fixed_train_size=False,  
-        steps=10,  
-        metric='mean_squared_error',
-        verbose=True
+        fixed_train_size=False,
+        steps=10,
+        metric="mean_squared_error",
+        verbose=True,
     )
 
-    y_true = df.iloc[int(len(df) * 0.8):, 0]  # The actual values from the test set
+    y_true = df.iloc[int(len(df) * 0.8) :, 0]  # The actual values from the test set
     mae = mean_absolute_error(y_true, predictions)
-    
+
     # Manual computation of MAPE
-    mape_val = np.mean(np.abs((y_true - predictions) / y_true)) * 100
+    # mape_val = np.mean(np.abs((y_true - predictions) / y_true)) * 100
+    mape_val = mean_absolute_percentage_error(y_true, predictions)
 
     mse = mean_squared_error(y_true, predictions)
     rmse = np.sqrt(mse)
@@ -89,11 +99,10 @@ def forecast_and_evaluate_linear_regression(df_arg, exog, lag_value):
 
     # Return results as a dictionary
     return {
-        'results_random_search': results_random_search,
-        'best_params': best_params,
-        'mae': mae,
-        'mape': mape_val,  # Manually computed MAPE
-        'mse': mse,
-        'rmse': rmse
+        "results_random_search": results_random_search,
+        "best_params": best_params,
+        "mae": mae,
+        "mape": mape_val,  # Manually computed MAPE
+        "mse": mse,
+        "rmse": rmse,
     }
-
