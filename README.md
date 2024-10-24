@@ -10,4 +10,4 @@ To evaluate the performance of each ml model in forecasting task, we use skforec
 We automate the process to tests these models in different time series data. 
 
 ## Reminder
--I updated the default branch to remove-svr. 
+-I updated the default branch to separate-datasets-for-uni-multi-ts
